@@ -1,62 +1,97 @@
-'use client'
-import { Sheet,SheetContent,SheetDescription,SheetHeader,SheetFooter,SheetTrigger,SheetTitle } from "@/components/ui/sheet";
-import { Fininfocontext } from "../context";
-import { useContext,useState } from "react";
-import Image from "next/image";
+"use client";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
+import Link from "next/link";
 
-export default function Header(){
-  const { userdata } = useContext(Fininfocontext);
-  const [open, setOpen] = useState(false);
-  return(
-    <div className="flex h-16 w-full text-green-700 shrink-0 items-center justify-between border-b border-black shadow-sm m-0 pb-0 mb-2 bg-transparent top-0">
-      <div className="ml-4 ml-8 text-bold text-lg mb-2">FinanceBoss</div>
+const Header = () => {
+  const [isOpen, setIsOpen] = useState(false);
 
-      {/* Profile Picture Section */}
-      <div className="mr-4 flex">
-        <div className="mr-2 text-lg text-blue-600 mt-1">{userdata.name}</div>
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
-            {/* Profile Picture */}
-            <div className="cursor-pointer">
-              <Image
-                src="/images/person.svg" // Replace with actual profile picture URL
-                alt="Profile"
-                width={40} // Adjust size as needed
-                height={40} // Adjust size as needed
-                className="rounded-full object-cover"
-              />
-            </div>
-          </SheetTrigger>
+  return (
+    <header className="fixed top-0 left-0 w-full bg-white shadow-md z-50">
+      <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+        <Link href="/">
+          {/* Show text for large screens */}
+          <div className="hidden sm:block text-2xl font-bold text-gray-800">
+            ADITYA PRIVATE LTD
+          </div>
+          {/* Show image for small screens */}
+          <img
+            src="/images/logo.jpg" // Replace with your actual image path
+            alt="Logo"
+            className="block sm:hidden h-10" // Adjust height as needed
+          />
+        </Link>
 
-          {/* User Profile Sheet */}
-          <SheetContent side="right" className="w-80 p-6">
-            <SheetHeader>
-              <SheetTitle>User Profile</SheetTitle>
-              <SheetDescription>View your details below:</SheetDescription>
-            </SheetHeader>
-            <div className="mt-4 space-y-2">
-              <div>
-                <strong>Name:</strong> {userdata.name || "N/A"}
-              </div>
-              <div>
-                <strong>Phone:</strong> {userdata.phone || "N/A"}
-              </div>
-              <div>
-                <strong>Profession:</strong> {userdata.profession || "N/A"}
-              </div>
-            </div>
-            <SheetFooter className="mt-6">
-              <button
-                onClick={() => setOpen(false)}
-                className="w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700"
-              >
-                Close
-              </button>
-            </SheetFooter>
-          </SheetContent>
-        </Sheet>
+        <nav className="hidden md:flex space-x-6">
+          <Link href="/services" className="text-gray-600 hover:text-gray-900">
+            Services
+          </Link>
+          <Link href="/about" className="text-gray-600 hover:text-gray-900">
+            About
+          </Link>
+          <Link href="/contact" className="text-gray-600 hover:text-gray-900">
+            Contact
+          </Link>
+        </nav>
+
+        <div className="hidden md:block">
+          <input
+            type="text"
+            placeholder="Search..."
+            className="px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div className="hidden md:flex space-x-4">
+          <button className="px-4 py-2 text-gray-600 hover:text-gray-900">
+            Login
+          </button>
+          <button className="px-4 py-2 bg-gray-900 text-white rounded-full hover:bg-black">
+            Sign Up
+          </button>
+        </div>
+
+        <button
+          className="sm:hidden text-gray-800"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {isOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
       </div>
-    </div>
 
+      {isOpen && (
+        <div className="md:hidden bg-white border-t border-gray-200">
+          <div className="flex flex-col p-4 space-y-4">
+            <Link href="/services" onClick={() => setIsOpen(false)}>
+              Services
+            </Link>
+            <Link href="/about" onClick={() => setIsOpen(false)}>
+              About
+            </Link>
+            <Link href="/contact" onClick={() => setIsOpen(false)}>
+              Contact
+            </Link>
+            <div className="flex space-x-4">
+              <button className="text-gray-600" onClick={() => setIsOpen(false)}>
+                Login
+              </button>
+              <button
+                className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700"
+                onClick={() => setIsOpen(false)}
+              >
+                Sign Up
+              </button>
+            </div>
+            <input
+              type="text"
+              placeholder="Search..."
+              className="px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+      )}
+    </header>
   );
-}
+};
+
+export default Header;

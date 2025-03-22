@@ -1,166 +1,268 @@
 'use client'
-import {Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious} from "@/components/ui/carousel"
-import Image from "next/image";
 
-export default function Home(){
-  const items = [
-    {
-      id: 1,
-      title: "Accident and Education Benefit Scheme",
-      description: "Beneficiaries under the scheme. Drivers who are holding valid DL issued by Transport Department to drive private commercial transport vehicles.Conductors who are holding valid conductor licence issued by Transport Department and registered under the Scheme.Cleaners of private commercial transport vehicles.",
-      image: "/images/kargov.png",
-    },
-    {
-      id: 2,
-      title: "National Livestock Mission",
-      description: "The focus of the scheme is on entrepreneurship development and breed improvement in poultry, sheep, goat and piggery including feed and fodder development.",
-      image: "/images/govind.jpg",
-    },
-    {
-      id: 3,
-      title: "Item 3 Title",
-      description: "This is the description for item 3.",
-      image: "/images/kargov.png",
-    },
+import { Pencil, Trash, Plus } from "lucide-react";
+import { useState, useEffect, useContext } from "react";
+import { addNewProduct,deleteProductData,editProductData } from "@/actions";
+import { Adityatechcontext } from "../context";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+const HomeScreen = ({ products }) => {
+  const [selectedOption, setSelectedOption] = useState("Products");
+  const [loading, setLoading] = useState(true);
+  const { productdata, setProductData } = useContext(Adityatechcontext);
+
+  useEffect(() => {
+    if (products) {
+      setLoading(false);
+    }
+  }, [products]);
+
+  const menuOptions = [
+    "Products",
+    "Sales",
+    "Customers",
+    "Purchases",
+    "Employees",
+    "Category",
   ];
 
-  const items2 = [
-    {
-      id: 1,
-      title: "National Livestock Mission",
-      description: "The focus of the scheme is on entrepreneurship development and breed improvement in poultry, sheep, goat and piggery including feed and fodder development.",
-      image: "/images/govind.jpg",
-    },
-    {
-      id: 2,
-      title: "National Livestock Mission",
-      description: "The focus of the scheme is on entrepreneurship development and breed improvement in poultry, sheep, goat and piggery including feed and fodder development.",
-      image: "/images/govind.jpg",
-    },
-    {
-      id: 3,
-      title: "Item 3 Title",
-      description: "This is the description for item 3.",
-      image: "/images/kargov.png",
-    },
-  ];
+  const data = {
+    Sales: ["Sale 1", "Sale 2", "Sale 3"],
+    Customers: ["Customer 1", "Customer 2", "Customer 3"],
+    Purchases: ["Purchase 1", "Purchase 2", "Purchase 3"],
+    Employees: ["Employee 1", "Employee 2", "Employee 3"],
+    Category: ["Category 1", "Category 2", "Category 3"],
+  };
 
-  return(
-    <div className="flex flex-col w-full h-screen ">
-      <p className="ml-8 text-bold text-lg mb-2 ">Government Schemes</p>
-    <div className="w-full">
-      <Carousel>
-        <CarouselPrevious className="absolute left-4 top-1/2 z-10 transform -translate-y-1/2 text-gray-600 bg-white rounded-full shadow-lg p-2 cursor-pointer hover:bg-gray-200">
-            &lt;
-          </CarouselPrevious>
+  const handleEdit = (product) => {
+    setProductData(product);
+    editProductData(productdata);  
+  };
 
-          {/* Next Button */}
-          <CarouselNext className="absolute right-4 top-1/2 z-10 transform -translate-y-1/2 text-gray-600 bg-white rounded-full shadow-lg p-2 cursor-pointer hover:bg-gray-200">
-            &gt;
-          </CarouselNext>
+  const handleSave = () => {
+    addNewProduct(productdata);
+  };
 
-        <CarouselContent className="w-full h-[200px]">
-          {items.map((item) => (
-            <CarouselItem key={item.id} className="flex w-full h-full">
-              <div className="w-1/3 h-[80%] mt-4">
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-full h-full object-contain"
-                />
-              </div>
-              <div className="w-2/3 flex flex-col justify-center pr-8 mr-4">
-                <h2 className="text-xl font-bold text-gray-800">{item.title}</h2>
-                <p className="text-gray-600 mt-2">{item.description}</p>
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
-    </div>
-    <p className="ml-8 text-bold text-lg mt-2 ">Expense Report</p>
-    <div className="flex w-full h-[300px] mt-4 justify-around">
-      <img src="/images/img1.png" alt="Image 1" className="w-1/3 h-full object-cover" />
-      <img src="/images/img2.png" alt="Image 2" className="w-1/3 h-full object-cover" />
-    </div>
-    <div className="flex w-full justify-center mt-4 px-8">
-    <button className="px-6 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-      Update Expenses
-    </button>
-    <button className="ml-4 px-6 py-2 text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-      Insights
-    </button>
-  </div>
-  <p className="ml-8 text-bold text-lg mt-2 ">Jobs</p>
-  <div className="w-[90%] mx-auto my-4 p-6 border border-gray-300 shadow-lg rounded-lg flex items-center">
-      {/* Profile Picture */}
-      <div className="w-24 h-24 ml-8">
-        <Image
-          src="/images/person.svg" // Update with the actual image path
-          alt="Profile Picture"
-          width={96}
-          height={96}
-          className="rounded-full object-cover"
-        />
-      </div>
+  const handleDelete = (productId) => {
+    deleteProductData(productId);
+  };
 
-      {/* Profile Details */}
-      <div className="flex-1 ml-16">
-        <h2 className="text-2xl font-semibold">Pooja Singh</h2>
-        <p className="text-lg text-gray-600">Dairy farmer</p>
-        <p className="text-gray-500 mt-2">Deliver dairy prducts from Nagpur to Kolkata</p>
-
-        {/* Buttons */}
-        <div className="mt-4 flex space-x-4">
-          <button className="px-6 py-2 text-white bg-orange-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-            Details
-          </button>
-          <button className="px-6 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-            Contact
-          </button>
-          <button className="px-6 py-2 text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-            Accept
-          </button>
+  return (
+    <div className="min-h-screen mx-auto">
+      {/* Top Component */}
+      <div className="flex items-center justify-center min-h-[33vh]">
+        <div className="text-gray-900 mt-20 px-4 flex flex-col items-center">
+          <div className="flex items-center space-x-2">
+            <img
+              src="/images/logo.jpg"
+              alt="Company Logo"
+              className="w-20 h-20 sm:w-32 sm:h-32 rounded-full object-cover"
+            />
+            <div>
+              <h1 className="text-lg sm:text-2xl font-bold">Aditya Private Ltd</h1>
+              <p className="text-xs sm:text-sm text-gray-900 italic">
+                Your trusted partner for technology
+              </p>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div className="w-[90%] mx-auto my-4 p-6 border border-gray-300 shadow-lg rounded-lg flex items-center">
-      {/* Profile Picture */}
-      <div className="w-24 h-24 ml-8">
-        <Image
-          src="/images/person2.svg" // Update with the actual image path
-          alt="Profile Picture"
-          width={96}
-          height={96}
-          className="rounded-full object-cover"
-        />
-      </div>
 
-      {/* Profile Details */}
-      <div className="flex-1 ml-16">
-        <h2 className="text-2xl font-semibold">Krishna Kumar</h2>
-        <p className="text-lg text-gray-600">Construction materials</p>
-        <p className="text-gray-500 mt-2">Deliver cement from Nagpur to Chennai</p>
+      {/* Header Bar */}
+      <div className="bg-white shadow-md ">
+        <div className="flex justify-center py-4">
+          {/* Slider for small screens */}
+          <div className="flex space-x-2 mx-4 overflow-x-auto whitespace-nowrap sm:hidden scrollbar-hide py-2">
+            {menuOptions.map((option) => (
+              <button
+                key={option}
+                className={`px-3 py-1 text-sm rounded-md ${
+                  selectedOption === option
+                    ? "bg-black text-white"
+                    : "bg-gray-200 text-gray-800"
+                } hover:bg-gray-800 hover:text-white transition`}
+                onClick={() => setSelectedOption(option)}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
 
-        {/* Buttons */}
-        <div className="mt-4 flex space-x-4">
-          <button className="px-6 py-2 text-white bg-orange-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-            Details
-          </button>
-          <button className="px-6 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-            Contact
-          </button>
-          <button className="px-6 py-2 text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-            Accept
-          </button>
+
+          {/* Show all options directly for larger screens */}
+          <div className="hidden sm:flex space-x-6">
+            {menuOptions.map((option) => (
+              <button
+                key={option}
+                className={`px-4 py-2 rounded-md ${
+                  selectedOption === option
+                    ? "bg-black text-white"
+                    : "bg-gray-200 text-gray-800"
+                } hover:bg-gray-800 hover:text-white transition`}
+                onClick={() => setSelectedOption(option)}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
+
+
+      {/* Bottom Component */}
+      <div className="p-6">
+        <h2 className="text-xl font-semibold mb-4">
+          {selectedOption} Details:
+        </h2>
+        <div className="grid md:grid-cols-4 grid-cols-1 gap-4 justify-center">
+          {selectedOption === "Products" ? (
+            loading ? (
+              <p>Loading products...</p>
+            ) : products?.length > 0 ? (
+              products.map((product) => (
+                <div
+                  key={product._id}
+                  className="relative bg-white p-4 rounded-md shadow hover:shadow-lg transition cursor-pointer"
+                >
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Pencil
+                        className="absolute top-4 left-4 w-5 h-5 text-gray-600 hover:text-blue-500 cursor-pointer transition"
+                        onClick={() => handleEdit(product)}
+                      />
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Edit Product</DialogTitle>
+                        <DialogDescription>
+                          Update product details
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="grid grid-cols-2 gap-4">
+                        {Object.keys(productdata || {}).map((key) => (
+                          <div key={key} className="flex flex-col">
+                            <label className="text-sm font-medium">{key}</label>
+                            <input
+                              type={
+                                typeof productdata[key] === "number"
+                                  ? "number"
+                                  : "text"
+                              }
+                              value={productdata[key] ?? ""}
+                              onChange={(e) =>
+                                setProductData({
+                                  ...productdata,
+                                  [key]:
+                                    typeof productdata[key] === "number"
+                                      ? Number(e.target.value)
+                                      : e.target.value,
+                                })
+                              }
+                              className="border p-2 rounded-md"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                      <button
+                        className="mt-4 w-full bg-gray-800 text-white py-2 rounded-md hover:bg-black transition"
+                        onClick={handleSave}
+                      >
+                        Save
+                      </button>
+                    </DialogContent>
+                  </Dialog>
+
+                  <Trash
+                    className="absolute top-4 right-4 w-5 h-5 text-gray-600 hover:text-red-500 cursor-pointer transition"
+                    onClick={() => handleDelete(product.PID)}
+                  />
+
+                  <img
+                    src={product.Pic || null}
+                    alt={product.ProductName || "No Image"}
+                    className="w-full h-40 object-contain rounded-md mb-2"
+                  />``
+                  <h3 className="text-lg font-bold">{product.ProductName}</h3>
+                  <p className="text-gray-600">{product.Description}</p>
+                  <p className="text-black font-semibold">
+                    ₹{product.SellingPrice}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p>No products available</p>
+            )
+          ) : (
+            data[selectedOption].map((item, index) => (
+              <div
+                key={index}
+                className="bg-white p-4 rounded-md shadow hover:shadow-lg transition"
+              >
+                {item}
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Add New Product Button */}
+        <Dialog>
+          <DialogTrigger asChild>
+            <button className="flex items-center mt-6 ml-6 px-6 py-2 bg-gray-800 text-white rounded-md hover:bg-black transition">
+              <Plus className="w-5 h-5 mr-2" />
+              Add New Product
+            </button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New Product</DialogTitle>
+              <DialogDescription>
+                Fill the details below to add a new product.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid grid-cols-2 gap-4">
+              {Object.keys(productdata || {}).map((key) => (
+                <div key={key} className="flex flex-col">
+                  <label className="text-sm font-medium">{key}</label>
+                  <input
+                    type={
+                      typeof productdata[key] === "number"
+                        ? "number"
+                        : "text"
+                    }
+                    value={productdata[key] ?? ""}
+                    onChange={(e) =>
+                      setProductData({
+                        ...productdata,
+                        [key]:
+                          typeof productdata[key] === "number"
+                            ? Number(e.target.value)
+                            : e.target.value,
+                      })
+                    }
+                    className="border p-2 rounded-md"
+                  />
+                </div>
+              ))}
+            </div>
+            <button
+              className="mt-4 w-full bg-gray-800 text-white py-2 rounded-md hover:bg-black transition"
+              onClick={handleSave}
+            >
+              Save
+            </button>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
-  </div>
   );
-}
+};
+
+export default HomeScreen;

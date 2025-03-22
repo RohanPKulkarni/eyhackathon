@@ -5,7 +5,7 @@ import Header from "../header";
 export default function CommonLayout({children}){
 
     return(
-        <div className="mx-auto pt-2 lg:px-8">
+        <div>
             <Header/>
             <main>{children}</main>
         </div>

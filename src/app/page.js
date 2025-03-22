@@ -1,9 +1,13 @@
-import SignupPage from "./components/signup";
+import HomeScreen from "./components/homecomponent";
+import { fetchProducts } from "@/actions";
 
-export default function Signuppage(){
+export default async function Home(){
+
+  const products = await fetchProducts();
+
   return(
     <div>
-      <SignupPage/>
+      <HomeScreen products={products}/>
     </div>
   );
 }

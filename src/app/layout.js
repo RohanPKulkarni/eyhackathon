@@ -1,7 +1,7 @@
 import localFont from "next/font/local";
 import "./globals.css";
 import CommonLayout from "./components/common-layout";
-import { FinInfoProvider } from "./components/context";
+import { AdityatechProvider } from "./components/context";
 
 export default function RootLayout({ children }) {
   return (
@@ -9,11 +9,11 @@ export default function RootLayout({ children }) {
       <body
         className={` antialiased `}
       >
-        <FinInfoProvider>
+        <AdityatechProvider>
           <CommonLayout
             children = {children}
             />
-        </FinInfoProvider>
+        </AdityatechProvider>
       </body>
     </html>
   );
