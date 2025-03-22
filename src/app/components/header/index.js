@@ -34,7 +34,7 @@ const Header = () => {
           </Link>
         </nav>
 
-        <div className="hidden md:block">
+        <div className="block">
           <input
             type="text"
             placeholder="Search..."
@@ -82,11 +82,6 @@ const Header = () => {
                 Sign Up
               </button>
             </div>
-            <input
-              type="text"
-              placeholder="Search..."
-              className="px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
           </div>
         </div>
       )}
