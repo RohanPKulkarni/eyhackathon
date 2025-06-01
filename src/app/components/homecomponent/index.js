@@ -1,62 +1,154 @@
-'use client'
+'use client';
 
-import { Pencil, Trash, Plus } from "lucide-react";
 import { useState, useEffect, useContext } from "react";
-import { addNewProduct,deleteProductData,editProductData } from "@/actions";
 import { Adityatechcontext } from "../context";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+  DialogClose
 } from "@/components/ui/dialog";
+import {
+  addHardwareAssetToDepartmentByName,
+  editHardwareAssetInDepartmentByName,
+  deleteHardwareAssetFromDepartmentBySlNo
+} from "@/actions";
+import { Pencil, Trash } from "lucide-react";
 
-const HomeScreen = ({ products }) => {
-  const [selectedOption, setSelectedOption] = useState("Products");
-  const [loading, setLoading] = useState(true);
-  const { productdata, setProductData } = useContext(Adityatechcontext);
+const HomeScreen = ({ deptassets }) => {
+  const departmentMap = {};
+  (deptassets || []).forEach((doc) => {
+    departmentMap[doc.department] = doc.assets;
+  });
+
+  const departments = Object.keys(departmentMap);
+  const [selectedDept, setSelectedDept] = useState(departments[0]);
+  const { productdata } = useContext(Adityatechcontext);
+  const router = useRouter();
+
+  const [newAsset, setNewAsset] = useState({
+    SlNo: '',
+    Description: '',
+    ServiceTag: '',
+    IdentificationNo: '',
+    ProcurementDate: '',
+    Cost: '',
+    Location: '',
+  });
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editIndex, setEditIndex] = useState(null);
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [assetToDelete, setAssetToDelete] = useState(null);
 
   useEffect(() => {
-    if (products) {
-      setLoading(false);
+    if (selectedDept) {
+      router.prefetch(`/department/${selectedDept}`);
     }
-  }, [products]);
+  }, [selectedDept, router]);
 
-  const menuOptions = [
-    "Products",
-    "Sales",
-    "Customers",
-    "Purchases",
-    "Employees",
-    "Category",
+  const handleChange = (e) => {
+    setNewAsset({ ...newAsset, [e.target.name]: e.target.value });
+  };
+
+  const handleAddAsset = async () => {
+    try {
+      if (isEditMode) {
+        const result = await editHardwareAssetInDepartmentByName(selectedDept, newAsset);
+        if (result && result.assets) {
+          alert("Asset updated successfully!");
+          window.location.reload();
+        } else {
+          alert("Failed to update asset");
+        }
+      } else {
+        const result = await addHardwareAssetToDepartmentByName(selectedDept, newAsset);
+        if (result && result.assets) {
+          alert("Asset added successfully!");
+          window.location.reload();
+        } else {
+          alert("Failed to add asset");
+        }
+      }
+    } catch (error) {
+      console.log("Error saving asset:", error);
+      alert("Error saving asset");
+    }
+
+    setDialogOpen(false);
+    setNewAsset({
+      SlNo: '',
+      Description: '',
+      ServiceTag: '',
+      IdentificationNo: '',
+      ProcurementDate: '',
+      Cost: '',
+      Location: '',
+    });
+    setIsEditMode(false);
+  };
+
+  const handleEdit = (asset) => {
+    setNewAsset(asset);
+    setIsEditMode(true);
+    setDialogOpen(true);
+  };
+
+  const handleDelete = (asset) => {
+    setAssetToDelete(asset);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      const result = await deleteHardwareAssetFromDepartmentBySlNo(selectedDept, assetToDelete.SlNo);
+      if (result && result.assets) {
+        alert("Asset deleted successfully!");
+        window.location.reload();
+      } else {
+        alert("Failed to delete asset");
+      }
+    } catch (error) {
+      console.log("Error deleting asset:", error);
+      alert("Error deleting asset");
+    }
+
+    setDeleteDialogOpen(false);
+    setAssetToDelete(null);
+  };
+
+  const colors = [
+    "border-red-500", "border-green-500", "border-blue-500", "border-yellow-500",
+    "border-purple-500", "border-pink-500", "border-orange-500", "border-teal-500",
+    "border-emerald-500", "border-indigo-500"
   ];
 
-  const data = {
-    Sales: ["Sale 1", "Sale 2", "Sale 3"],
-    Customers: ["Customer 1", "Customer 2", "Customer 3"],
-    Purchases: ["Purchase 1", "Purchase 2", "Purchase 3"],
-    Employees: ["Employee 1", "Employee 2", "Employee 3"],
-    Category: ["Category 1", "Category 2", "Category 3"],
+  const textColorMap = {
+    "border-red-500": "text-red-500",
+    "border-green-500": "text-green-500",
+    "border-blue-500": "text-blue-500",
+    "border-yellow-500": "text-yellow-500",
+    "border-purple-500": "text-purple-500",
+    "border-pink-500": "text-pink-500",
+    "border-orange-500": "text-orange-500",
+    "border-teal-500": "text-teal-500",
+    "border-emerald-500": "text-emerald-500",
+    "border-indigo-500": "text-indigo-500",
   };
 
-  const handleEdit = (product) => {
-    setProductData(product);
-    editProductData(productdata);  
-  };
-
-  const handleSave = () => {
-    addNewProduct(productdata);
-  };
-
-  const handleDelete = (productId) => {
-    deleteProductData(productId);
-  };
+  const descriptionColorMap = {};
+  let colorIndex = 0;
 
   return (
     <div className="min-h-screen mx-auto">
-      {/* Top Component */}
+      {/* Header */}
       <div className="flex items-center justify-center min-h-[33vh]">
         <div className="text-gray-900 mt-20 px-4 flex flex-col items-center">
           <div className="flex items-center space-x-2">
@@ -68,199 +160,156 @@ const HomeScreen = ({ products }) => {
             <div>
               <h1 className="text-lg sm:text-2xl font-bold">Aditya Private Ltd</h1>
               <p className="text-xs sm:text-sm text-gray-900 italic">
-                Your trusted partner for technology
+                M S Ramaiah Institute of Technology
               </p>
             </div>
           </div>
         </div>
       </div>
 
-
-      {/* Header Bar */}
-      <div className="bg-white shadow-md ">
+      {/* Department Dropdown */}
+      <div className="bg-white shadow-md">
         <div className="flex justify-center py-4">
-          {/* Slider for small screens */}
-          <div className="flex space-x-2 mx-4 overflow-x-auto whitespace-nowrap sm:hidden scrollbar-hide py-2">
-            {menuOptions.map((option) => (
-              <button
-                key={option}
-                className={`px-3 py-1 text-sm rounded-md ${
-                  selectedOption === option
-                    ? "bg-black text-white"
-                    : "bg-gray-200 text-gray-800"
-                } hover:bg-gray-800 hover:text-white transition`}
-                onClick={() => setSelectedOption(option)}
-              >
-                {option}
-              </button>
+          <select
+            value={selectedDept}
+            onChange={(e) => setSelectedDept(e.target.value)}
+            className="px-4 py-2 rounded-md border-2 border-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            {departments.map((dept) => (
+              <option key={dept} value={dept}>{dept}</option>
             ))}
-          </div>
-
-
-          {/* Show all options directly for larger screens */}
-          <div className="hidden sm:flex space-x-6">
-            {menuOptions.map((option) => (
-              <button
-                key={option}
-                className={`px-4 py-2 rounded-md ${
-                  selectedOption === option
-                    ? "bg-black text-white"
-                    : "bg-gray-200 text-gray-800"
-                } hover:bg-gray-800 hover:text-white transition`}
-                onClick={() => setSelectedOption(option)}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
+          </select>
         </div>
       </div>
 
-
-      {/* Bottom Component */}
+      {/* Assets List */}
       <div className="p-6">
-        <h2 className="text-xl font-semibold mb-4">
-          {selectedOption} Details:
-        </h2>
-        <div className="grid md:grid-cols-4 grid-cols-1 gap-4 justify-center">
-          {selectedOption === "Products" ? (
-            loading ? (
-              <p>Loading products...</p>
-            ) : products?.length > 0 ? (
-              products.map((product) => (
-                <div
-                  key={product._id}
-                  className="relative bg-white p-4 rounded-md shadow hover:shadow-lg transition cursor-pointer"
-                >
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Pencil
-                        className="absolute top-4 left-4 w-5 h-5 text-gray-600 hover:text-blue-500 cursor-pointer transition"
-                        onClick={() => handleEdit(product)}
-                      />
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Edit Product</DialogTitle>
-                        <DialogDescription>
-                          Update product details
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="grid grid-cols-2 gap-4">
-                        {Object.keys(productdata || {}).map((key) => (
-                          <div key={key} className="flex flex-col">
-                            <label className="text-sm font-medium">{key}</label>
-                            <input
-                              type={
-                                typeof productdata[key] === "number"
-                                  ? "number"
-                                  : "text"
-                              }
-                              value={productdata[key] ?? ""}
-                              onChange={(e) =>
-                                setProductData({
-                                  ...productdata,
-                                  [key]:
-                                    typeof productdata[key] === "number"
-                                      ? Number(e.target.value)
-                                      : e.target.value,
-                                })
-                              }
-                              className="border p-2 rounded-md"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                      <button
-                        className="mt-4 w-full bg-gray-800 text-white py-2 rounded-md hover:bg-black transition"
-                        onClick={handleSave}
-                      >
-                        Save
-                      </button>
-                    </DialogContent>
-                  </Dialog>
-
-                  <Trash
-                    className="absolute top-4 right-4 w-5 h-5 text-gray-600 hover:text-red-500 cursor-pointer transition"
-                    onClick={() => handleDelete(product.PID)}
-                  />
-
-                  <img
-                    src={product.Pic || null}
-                    alt={product.ProductName || "No Image"}
-                    className="w-full h-40 object-contain rounded-md mb-2"
-                  />``
-                  <h3 className="text-lg font-bold">{product.ProductName}</h3>
-                  <p className="text-gray-600">{product.Description}</p>
-                  <p className="text-black font-semibold">
-                    ₹{product.SellingPrice}
-                  </p>
-                </div>
-              ))
-            ) : (
-              <p>No products available</p>
-            )
-          ) : (
-            data[selectedOption].map((item, index) => (
-              <div
-                key={index}
-                className="bg-white p-4 rounded-md shadow hover:shadow-lg transition"
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">{selectedDept} - Asset List</h2>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <button
+                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                onClick={() => {
+                  setIsEditMode(false);
+                  setNewAsset({
+                    SlNo: '',
+                    Description: '',
+                    ServiceTag: '',
+                    IdentificationNo: '',
+                    ProcurementDate: '',
+                    Cost: '',
+                    Location: '',
+                  });
+                  setDialogOpen(true);
+                }}
               >
-                {item}
+                Add New Component
+              </button>
+            </DialogTrigger>
+
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{isEditMode ? "Edit Asset" : "Add New Asset"}</DialogTitle>
+                <DialogDescription>
+                  {isEditMode
+                    ? `Edit asset details for ${selectedDept}.`
+                    : `Fill out the form to add a new asset to the ${selectedDept} department.`}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-3">
+                {Object.keys(newAsset).map((field) => (
+                  <input
+                    key={field}
+                    name={field}
+                    placeholder={field}
+                    value={newAsset[field]}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border rounded"
+                  />
+                ))}
               </div>
-            ))
+              <DialogFooter className="mt-4">
+                <DialogClose asChild>
+                  <button className="px-4 py-2 bg-gray-200 rounded">Cancel</button>
+                </DialogClose>
+                <button onClick={handleAddAsset} className="px-4 py-2 bg-blue-600 text-white rounded">
+                  {isEditMode ? "Update Asset" : "Add Asset"}
+                </button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.isArray(departmentMap[selectedDept]) && departmentMap[selectedDept].length > 0 ? (
+            departmentMap[selectedDept].map((asset, index) => {
+              const desc = asset.Description || "Unknown";
+
+              if (!descriptionColorMap[desc]) {
+                descriptionColorMap[desc] = colors[colorIndex % colors.length];
+                colorIndex++;
+              }
+
+              const borderColorClass = descriptionColorMap[desc];
+              const textColorClass = textColorMap[borderColorClass] || "text-black";
+
+              return (
+                <div
+                  key={index}
+                  className={`relative bg-white p-8 rounded-md shadow hover:shadow-lg transition border-l-4 ${borderColorClass}`}
+                >
+                  <button
+                    onClick={() => handleEdit(asset, index)}
+                    className="absolute top-2 left-2 text-gray-600 hover:text-gray-800"
+                  >
+                    <Pencil size={18} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(asset, index)}
+                    className="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
+                  >
+                    <Trash size={18} />
+                  </button>
+
+                  <p><strong>Sl. No:</strong> {asset.SlNo}</p>
+                  <p className={`${textColorClass} font-semibold`}>Description: {desc}</p>
+                  <p><strong>Service Tag:</strong> {asset.ServiceTag}</p>
+                  <p><strong>Identification No:</strong> {asset.IdentificationNo}</p>
+                  <p><strong>Procurement Date:</strong> {String(asset.ProcurementDate)}</p>
+                  <p><strong>Cost:</strong> ₹{asset.Cost}</p>
+                  <p><strong>Location:</strong> {asset.Location || selectedDept}</p>
+                </div>
+              );
+            })
+          ) : (
+            <p className="text-gray-500 col-span-full">No assets found for this department.</p>
           )}
         </div>
-
-        {/* Add New Product Button */}
-        <Dialog>
-          <DialogTrigger asChild>
-            <button className="flex items-center mt-6 ml-6 px-6 py-2 bg-gray-800 text-white rounded-md hover:bg-black transition">
-              <Plus className="w-5 h-5 mr-2" />
-              Add New Product
-            </button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add New Product</DialogTitle>
-              <DialogDescription>
-                Fill the details below to add a new product.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid grid-cols-2 gap-4">
-              {Object.keys(productdata || {}).map((key) => (
-                <div key={key} className="flex flex-col">
-                  <label className="text-sm font-medium">{key}</label>
-                  <input
-                    type={
-                      typeof productdata[key] === "number"
-                        ? "number"
-                        : "text"
-                    }
-                    value={productdata[key] ?? ""}
-                    onChange={(e) =>
-                      setProductData({
-                        ...productdata,
-                        [key]:
-                          typeof productdata[key] === "number"
-                            ? Number(e.target.value)
-                            : e.target.value,
-                      })
-                    }
-                    className="border p-2 rounded-md"
-                  />
-                </div>
-              ))}
-            </div>
-            <button
-              className="mt-4 w-full bg-gray-800 text-white py-2 rounded-md hover:bg-black transition"
-              onClick={handleSave}
-            >
-              Save
-            </button>
-          </DialogContent>
-        </Dialog>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete asset Sl. No: {assetToDelete?.SlNo}?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <DialogClose asChild>
+              <button className="px-4 py-2 bg-gray-200 rounded">Cancel</button>
+            </DialogClose>
+            <button
+              onClick={confirmDelete}
+              className="px-4 py-2 bg-red-600 text-white rounded"
+            >
+              Delete
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

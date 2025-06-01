@@ -1,13 +1,13 @@
 import HomeScreen from "./components/homecomponent";
-import { fetchProducts } from "@/actions";
+import { fetchDepartmentAssets } from "@/actions";
 
 export default async function Home(){
 
-  const products = await fetchProducts();
+  const deptassets = await fetchDepartmentAssets();
 
   return(
     <div>
-      <HomeScreen products={products}/>
+      <HomeScreen deptassets={deptassets}/>
     </div>
   );
 }
