@@ -173,7 +173,7 @@ const HomeScreen = ({ deptassets }) => {
           <select
             value={selectedDept}
             onChange={(e) => setSelectedDept(e.target.value)}
-            className="px-4 py-2 rounded-md border-2 border-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="px-4 py-2 rounded-md border-2 border-black bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition cursor-pointer"
           >
             {departments.map((dept) => (
               <option key={dept} value={dept}>{dept}</option>
@@ -189,7 +189,7 @@ const HomeScreen = ({ deptassets }) => {
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <button
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                className="px-6 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-900 transition"
                 onClick={() => {
                   setIsEditMode(false);
                   setNewAsset({

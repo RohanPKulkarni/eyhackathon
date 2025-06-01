@@ -42,7 +42,7 @@ const Header = () => {
           <select
             value={selectedBranch}
             onChange={(e) => setSelectedBranch(e.target.value)}
-            className="px-3 py-2 border-2 border-black rounded-md bg-white text-gray-700"
+            className="px-3 py-2 border-2 border-black rounded-md bg-white text-gray-700 transition cursor-pointer"
           >
             {branches.map((branch) => (
               <option key={branch} value={branch}>
